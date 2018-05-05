@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using SpotiList.Models;
 using SpotiList.Spotify;
@@ -22,29 +23,32 @@ namespace SpotiList.Controllers
         private ISavedAlbums _savedAlbums { get; set; }
         private IRecommendation _recommendation { get; set; }
         private IPlaylistSaver _playlistSaver { get; set; }
+        private IConfiguration _configuration { get; set; }
 
         public HomeController(IRecentTracks recentTracks, ISavedAlbums savedAlbums, 
-            IRecommendation recommendation, IPlaylistSaver playlistSaver)
+            IRecommendation recommendation, IPlaylistSaver playlistSaver,
+            IConfiguration configuration)
         {
             _recentTracks = recentTracks;
             _savedAlbums = savedAlbums;
             _recommendation = recommendation;
             _playlistSaver = playlistSaver;
+            _configuration = configuration;
         }
 
         public async Task<IActionResult> Index()
         {
+            if (string.IsNullOrWhiteSpace(_configuration["spotify:client_id"]) ||
+                string.IsNullOrWhiteSpace(_configuration["spotify:client_secret"]))
+            {
+                return RedirectToAction("readme");
+            }
             HomeViewModel model = new HomeViewModel();
             if (User.Identity.IsAuthenticated)
             {
                 model.RecentTracks = await _recentTracks.GetTracksAsync();
 
                 model.SavedArtists = await _savedAlbums.GetArtistsAsync();
-            }
-            if (model.RecentTracks == null)
-            {
-                await HttpContext.SignOutAsync();
-                Response.Cookies.Delete(".AspNetCore.Cookies");
             }
             return View(model);
         }
@@ -67,6 +71,11 @@ namespace SpotiList.Controllers
         {
             ViewData["Message"] = "Your application description page.";
 
+            return View();
+        }
+
+        public IActionResult ReadMe()
+        {
             return View();
         }
 
