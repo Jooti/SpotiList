@@ -1,0 +1,79 @@
+﻿@model HomeViewModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        @if (!User.Identity.IsAuthenticated)
+        {
+        <div class="col-md-4">
+            <h2>Login with spotify account</h2>
+            <ul>
+                <li>We save none of your data, we have no database at all.</li>
+                <li>
+                    <a asp-action="Login" asp-controller="Account" class="btn btn-default">Log In with Spotify</a>
+                </li>
+            </ul>
+        </div>
+        }
+        else
+        {
+        <h2>Select five item</h2>
+        <p>Bellow are list of your recently played tracks and saved albums, choose up to five items from the lists as your favorites and then press the submit button.</p>
+        }
+    </div>
+</div>
+
+@if (User.Identity.IsAuthenticated)
+{
+<div class="row">
+    <form asp-action="recommend" asp-controller="home" method="post">
+        <div class="col-md-4">
+            <h2>Recently played tracks</h2>
+            @foreach (var track in Model.RecentTracks)
+            {
+                <div class="checkbox">
+                    <label><input name="tracks" type="checkbox" value="@track.Id"><strong>@track.Name</strong> of @track.Album.Name</label>
+                </div>
+            }
+        </div>
+        <div class="col-md-4">
+            <h2>Artists of Saved albums</h2>
+            @foreach (var artist in Model.SavedArtists)
+            {
+                <div class="checkbox">
+                    <label><input name="artists" type="checkbox" value="@artist.Id">@artist.Name</label>
+                </div>
+            }
+        </div>
+        <div class="col-md-4">
+            <h2>Submit it</h2>
+            <p>Select <span id="itemsToSelect">5</span> more items</p>
+            <input type="submit" value="Submit" disabled="disabled" class="btn btn-primary" />
+        </div>
+    </form>
+</div>
+}
+
+@section Scripts
+{
+    <script>
+        var $checkboxes = $('input:checkbox');
+        $checkboxes.on('change', function () {
+            let selectedCount = $checkboxes.filter(":checked").length;
+            if (selectedCount > 5) {
+                $(this).prop({ checked: false });
+                selectedCount -= 1;
+            }
+            else if (selectedCount < 5) {
+                $('input:submit').prop({ disabled: true });
+            }
+            else if (selectedCount == 5) {
+                $('input:submit').prop({ disabled: false});
+            }
+            $('span#itemsToSelect').html(5 - selectedCount);
+
+        })
+    </script>
+}

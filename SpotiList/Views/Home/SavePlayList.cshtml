@@ -1,0 +1,20 @@
+﻿@model string
+@{
+    ViewData["Title"] = "Recommend";
+}
+
+<div class="row">
+        <div class="col-md-8">
+            @if(string.IsNullOrWhiteSpace((string)ViewData["url"]))
+            {
+                <h2>Oops!</h2>
+                <p>Something bad happend. We failed to save your playlist.</p>
+            }
+            else
+            {
+                <h2>Playlist saved</h2>
+                <p>here is a <a href="@ViewData["url"]">link</a>  to the playlist on Spotify</p>
+            }
+        </div>
+
+</div>

@@ -1,0 +1,27 @@
+﻿@model IList<MiniTrack>
+@{
+    ViewData["Title"] = "Recommend";
+}
+
+<div class="row">
+    <h2>Recommendation</h2>
+</div>
+<div class="row">
+    <form asp-action="SavePlaylist" asp-controller="home" method="post">
+        <div class="col-md-8">
+            @foreach (var track in Model)
+            {
+                <div class="checkbox">
+                    <label><input name="tracks" type="checkbox" checked="checked" value="@track.Id"><strong>@track.Name</strong> of @track.Album.Name</label>
+                </div>
+            }
+        </div>
+
+        <div class="col-md-4">
+            <p>Is it good enought? You may save some of these items.</p>
+            <label for="name">New playlist</label>
+            <input type="text" name="name" class="form-control" placeholder="Playlist name" />
+            <input type="submit" value="Create" class="btn btn-primary" />
+        </div>
+    </form>
+</div>
